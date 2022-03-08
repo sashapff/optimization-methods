@@ -1,4 +1,6 @@
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 class GradientDescent:
@@ -19,8 +21,22 @@ class GradientDescent:
         self.processed_iterations_count = 0
         self.scheduler = scheduler
 
+    def plot_trace_3d(self):
+        raise NotImplementedError()
+
+    def plot_trace_2d(self):
+        sns.scatterplot(x=[e[0] for e in self.trace_points], y=[e[0] for e in self.trace_function_results])
+        plt.show()
+
+    def plot_trace(self):
+        if self.initial_point.shape[0] == 1:
+            self.plot_trace_2d()
+        elif self.initial_point.shape[0] == 2:
+            self.plot_trace_3d()
+        else:
+            raise NotImplementedError("Not supported function")
+
     def optimize(self):
-        previous_point = self.initial_point
         current_point = self.initial_point
         iteration = 0
         for iteration in range(self.max_iterations_count):
@@ -35,14 +51,13 @@ class GradientDescent:
             else:
                 lr = 0.001
 
-            previous_point = current_point
-            current_point = current_point - lr * cur_gradient_result
-
+            next_point = current_point - lr * cur_gradient_result
             similar = True
-            for old_p, new_p in zip(previous_point, current_point):
+            for old_p, new_p in zip(next_point, current_point):
                 if abs(new_p - old_p) > self.epsilon:
                     similar = False
             if similar:
                 break
+            current_point = next_point
 
         return current_point, iteration + 1
