@@ -40,12 +40,17 @@ class GradientDescent:
             ys.append(self.function(x))
         return sns.lineplot(x=xs, y=ys, color='skyblue', lw=0.75)
 
-    def animation_function(self, i):
-        sns.scatterplot(x=[e[0] for e in self.trace_points[:i + 1]],
+    def animation_function(self, i, plot_one_point=False):
+        if plot_one_point:
+            sns.scatterplot(x=[e[0] for e in self.trace_points[i]],
+                        y=[e[0] for e in self.trace_function_results[i]],
+                        color='red')
+        else:
+            sns.scatterplot(x=[e[0] for e in self.trace_points[:i + 1]],
                         y=[e[0] for e in self.trace_function_results[:i + 1]],
                         color='red')
 
-    def plot_trace(self, title='', animate=False, with_function=False, from_x=-1, to_x=1, filename=None):
+    def plot_trace(self, title='', animate=False, with_function=False, from_x=-1, to_x=1, filename=None, plot_one_point=False):
         if self.initial_point.shape[0] == 1:
             fig, ax = plt.subplots()
             if animate:
@@ -54,10 +59,10 @@ class GradientDescent:
                 for i in range(len(self.trace_points)):
                     ax.text(0.2, 0.95, f'iteration: {i}', transform=ax.transAxes)
                     self.plot_function_2d(from_x, to_x)
-                    self.animation_function(i)
+                    self.animation_function(i, plot_one_point)
                     camera.snap()
                 print(2000/len(self.trace_points))
-                animation = camera.animate(interval=2000/len(self.trace_points))
+                animation = camera.animate(interval=2000//len(self.trace_points))
                 if filename is None:
                     filename = 'ani.gif'
                 animation.save(filename, fps=int(2000/len(self.trace_points)))
