@@ -42,8 +42,8 @@ class GradientDescent:
 
     def animation_function(self, i, plot_one_point=False):
         if plot_one_point:
-            sns.scatterplot(x=[e[0] for e in self.trace_points[i]],
-                        y=[e[0] for e in self.trace_function_results[i]],
+            sns.scatterplot(x=[e[0] for e in [self.trace_points[i]]],
+                        y=[e[0] for e in [self.trace_function_results[i]]],
                         color='red')
         else:
             sns.scatterplot(x=[e[0] for e in self.trace_points[:i + 1]],
@@ -61,7 +61,6 @@ class GradientDescent:
                     self.plot_function_2d(from_x, to_x)
                     self.animation_function(i, plot_one_point)
                     camera.snap()
-                print(2000/len(self.trace_points))
                 animation = camera.animate(interval=2000//len(self.trace_points))
                 if filename is None:
                     filename = 'ani.gif'

@@ -2,7 +2,7 @@ class ConstLRScheduler:
     def __init__(self, lr):
         self.lr = lr
 
-    def step(self):
+    def step(self, *args):
         return self.lr
 
 
@@ -13,7 +13,7 @@ class ExpLRScheduler:
         self.gamma = gamma
         self.step_count = 0
 
-    def step(self):
+    def step(self, *args):
         self.step_count += 1
         if self.step_count % self.period == 0:
             self.step_count = 0
