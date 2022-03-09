@@ -1,13 +1,14 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
-import matplotlib
+from IPython.display import HTML
+from celluloid import Camera
 
 
 class GradientDescent:
     def __init__(self,
-                 function=lambda x: x[0] ** 2,
-                 derivative=lambda x: 2 * x[0],
+                 function=lambda x: x ** 2,
+                 derivative=lambda x: 2 * x,
                  iterations=100,
                  initial_point=np.ndarray([1]),
                  epsilon=1e-3,
@@ -28,7 +29,7 @@ class GradientDescent:
 
     def plot_trace_2d(self, title):
         sns.scatterplot(x=[e[0] for e in self.trace_points], y=[e[0] for e in self.trace_function_results],
-                        color='red').set_title(title)
+                        color='maroon').set_title(title)
         plt.show()
 
     def plot_function_2d(self, from_x=-1, to_x=1):
@@ -37,22 +38,36 @@ class GradientDescent:
         for x in np.arange(from_x, to_x, 0.01):
             xs.append(x)
             ys.append(self.function(x))
-        sns.lineplot(x=xs, y=ys)
+        return sns.lineplot(x=xs, y=ys, color='skyblue', lw=0.75)
 
-    def animation_function(i):
-        pass
+    def animation_function(self, i):
+        sns.scatterplot(x=[e[0] for e in self.trace_points[:i + 1]],
+                        y=[e[0] for e in self.trace_function_results[:i + 1]],
+                        color='red')
 
-    def plot_trace(self, title='', animate=False, with_function=False, from_x=-1, to_x=1):
+    def plot_trace(self, title='', animate=False, with_function=False, from_x=-1, to_x=1, filename=None):
         if self.initial_point.shape[0] == 1:
-            if with_function:
-                self.plot_function_2d(from_x, to_x)
+            fig, ax = plt.subplots()
             if animate:
-                pass
-                # ani = matplotlib.animation.FuncAnimation(fig, animate,
-                #                                          frames=len(self.trace_points),
-                #                                          repeat=True)
+                camera = Camera(fig)
+                fig.suptitle(title)
+                for i in range(len(self.trace_points)):
+                    ax.text(0.2, 0.95, f'iteration: {i}', transform=ax.transAxes)
+                    self.plot_function_2d(from_x, to_x)
+                    self.animation_function(i)
+                    camera.snap()
+                print(2000/len(self.trace_points))
+                animation = camera.animate(interval=2000/len(self.trace_points))
+                if filename is None:
+                    filename = 'ani.gif'
+                animation.save(filename, fps=int(2000/len(self.trace_points)))
+                plt.close(fig)
+                return HTML(f'<img src="{filename}">')
             else:
+                if with_function:
+                    self.plot_function_2d(from_x, to_x)
                 self.plot_trace_2d(title)
+                plt.close(fig)
         elif self.initial_point.shape[0] == 2:
             self.plot_trace_3d(title)
         else:
