@@ -22,7 +22,6 @@ class GradientDescent:
         self.trace_function_results = []
         self.processed_iterations_count = 0
         self.scheduler = scheduler
-        self.scheduler_params = scheduler_params
 
     def plot_trace_3d(self, title):
         raise NotImplementedError()
@@ -70,7 +69,7 @@ class GradientDescent:
             self.trace_function_results.append(cur_function_result)
 
             if self.scheduler is not None:
-                lr = self.scheduler.step()
+                lr = self.scheduler.step(*(current_point, cur_gradient_result))
             else:
                 lr = 0.001
 
