@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from IPython.display import HTML
+from IPython.display import HTML, display
 from celluloid import Camera
 
 
@@ -44,13 +44,23 @@ class GradientDescent:
         if plot_one_point:
             sns.scatterplot(x=[e[0] for e in [self.trace_points[i]]],
                         y=[e[0] for e in [self.trace_function_results[i]]],
-                        color='red')
+                        color='maroon')
         else:
             sns.scatterplot(x=[e[0] for e in self.trace_points[:i + 1]],
                         y=[e[0] for e in self.trace_function_results[:i + 1]],
-                        color='red')
+                        color='maroon')
 
-    def plot_trace(self, title='', animate=False, with_function=False, from_x=-1, to_x=1, filename=None, plot_one_point=False):
+    def plot_trace(self, title='', animate=False, with_function=False,
+                   from_x=None, to_x=None, filename=None, plot_one_point=False):
+        if animate == 'auto':
+            if len(self.trace_points) > 150:
+                animate = False
+            else:
+                animate = True
+        if from_x is None:
+            from_x = min(self.trace_points)
+        if to_x is None:
+            to_x = max(self.trace_points)
         if self.initial_point.shape[0] == 1:
             fig, ax = plt.subplots()
             if animate:
@@ -66,7 +76,7 @@ class GradientDescent:
                     filename = 'ani.gif'
                 animation.save(filename, fps=int(2000/len(self.trace_points)))
                 plt.close(fig)
-                return HTML(f'<img src="{filename}">')
+                display(HTML(f'<img src="{filename}">'))
             else:
                 if with_function:
                     self.plot_function_2d(from_x, to_x)
