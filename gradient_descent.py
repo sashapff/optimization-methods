@@ -1,6 +1,7 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib
 
 
 class GradientDescent:
@@ -10,7 +11,8 @@ class GradientDescent:
                  iterations=100,
                  initial_point=np.ndarray([1]),
                  epsilon=1e-3,
-                 scheduler=None):
+                 scheduler=None,
+                 scheduler_params=None):
         self.derivative = derivative
         self.function = function
         self.max_iterations_count = iterations
@@ -20,19 +22,40 @@ class GradientDescent:
         self.trace_function_results = []
         self.processed_iterations_count = 0
         self.scheduler = scheduler
+        self.scheduler_params = scheduler_params
 
-    def plot_trace_3d(self):
+    def plot_trace_3d(self, title):
         raise NotImplementedError()
 
-    def plot_trace_2d(self):
-        sns.scatterplot(x=[e[0] for e in self.trace_points], y=[e[0] for e in self.trace_function_results])
+    def plot_trace_2d(self, title):
+        sns.scatterplot(x=[e[0] for e in self.trace_points], y=[e[0] for e in self.trace_function_results],
+                        color='red').set_title(title)
         plt.show()
 
-    def plot_trace(self):
+    def plot_function_2d(self, from_x=-1, to_x=1):
+        xs = []
+        ys = []
+        for x in np.arange(from_x, to_x, 0.01):
+            xs.append(x)
+            ys.append(self.function(x))
+        sns.lineplot(x=xs, y=ys)
+
+    def animation_function(i):
+        pass
+
+    def plot_trace(self, title='', animate=False, with_function=False, from_x=-1, to_x=1):
         if self.initial_point.shape[0] == 1:
-            self.plot_trace_2d()
+            if with_function:
+                self.plot_function_2d(from_x, to_x)
+            if animate:
+                pass
+                # ani = matplotlib.animation.FuncAnimation(fig, animate,
+                #                                          frames=len(self.trace_points),
+                #                                          repeat=True)
+            else:
+                self.plot_trace_2d(title)
         elif self.initial_point.shape[0] == 2:
-            self.plot_trace_3d()
+            self.plot_trace_3d(title)
         else:
             raise NotImplementedError("Not supported function")
 
@@ -59,5 +82,6 @@ class GradientDescent:
             if similar:
                 break
             current_point = next_point
-
+        self.optimized_minimum = current_point
+        self.optimized_iterations = iteration + 1
         return current_point, iteration + 1
