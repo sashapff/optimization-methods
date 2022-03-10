@@ -13,7 +13,8 @@ class GradientDescent:
                  initial_point=np.ndarray([1]),
                  epsilon=1e-3,
                  scheduler=None,
-                 scheduler_params=None):
+                 scheduler_params=None,
+                 wolfe=False):
         self.derivative = derivative
         self.function = function
         self.max_iterations_count = iterations
@@ -23,6 +24,7 @@ class GradientDescent:
         self.trace_function_results = []
         self.processed_iterations_count = 0
         self.scheduler = scheduler
+        self.wolfe = True
 
     def plot_trace_3d(self, title):
         raise NotImplementedError()
@@ -86,6 +88,26 @@ class GradientDescent:
             self.plot_trace_3d(title)
         else:
             raise NotImplementedError("Not supported function")
+            
+    def wolfe_f(self, point, max_iter):
+        alpha = 1.5
+        y = self.function(point)
+        grad = self.derivative(point)
+        # print(y, grad)
+        p = grad
+        c1 = 1e-4
+        c2 = 0.9
+        for _ in range(max_iter):
+            y_next = self.function(point + p * alpha)
+            grad_next = self.derivative(point + p * alpha)
+            first = y_next <= y + c1 * alpha * grad * p
+            second = grad_next * p >= c2 * grad * p
+            # print(f'first={first}, second={second}')
+            if (first and second):
+                return alpha
+            else:
+                alpha /= 2
+        return 1e-4        
 
     def optimize(self):
         current_point = self.initial_point
@@ -101,6 +123,8 @@ class GradientDescent:
                 lr = self.scheduler.step(*(current_point, cur_gradient_result))
             else:
                 lr = 0.001
+                if self.wolfe:
+                    lr = self.wolfe_f(current_point, 14)
 
             next_point = current_point - lr * cur_gradient_result
             similar = True
