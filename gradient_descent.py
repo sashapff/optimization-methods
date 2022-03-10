@@ -88,12 +88,11 @@ class GradientDescent:
             self.plot_trace_3d(title)
         else:
             raise NotImplementedError("Not supported function")
-            
+
     def wolfe_f(self, point, max_iter):
         alpha = 1.5
         y = self.function(point)
         grad = self.derivative(point)
-        # print(y, grad)
         p = grad
         c1 = 1e-4
         c2 = 0.9
@@ -102,12 +101,11 @@ class GradientDescent:
             grad_next = self.derivative(point + p * alpha)
             first = y_next <= y + c1 * alpha * grad * p
             second = grad_next * p >= c2 * grad * p
-            # print(f'first={first}, second={second}')
             if (first and second):
                 return alpha
             else:
                 alpha /= 2
-        return 1e-4        
+        return 1e-4
 
     def optimize(self):
         current_point = self.initial_point
