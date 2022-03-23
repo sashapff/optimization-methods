@@ -2,7 +2,7 @@ import random
 import time
 
 
-class SGDClassifier:
+class SGDRegressor:
     def __init__(self, epochs_count=100000, lr=1e-3, reg_coef=1, batch_size=1):
         self.epochs_count = epochs_count
         self.lr = lr
@@ -61,6 +61,6 @@ if __name__ == "__main__":
     # if X_train == [[2015], [2016]]:
     #     print('31\n-60420')
     # else:
-    sgd = SGDClassifier(40000, 0.05, 0)
+    sgd = SGDRegressor(40000, 0.05, 0)
     for i in sgd.fit(X_train, y_train):
         print(i)
