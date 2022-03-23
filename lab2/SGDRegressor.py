@@ -1,9 +1,25 @@
 import random
 import time
+from copy import copy
 
+
+class BaseOptimizer:
+    def __init__(self, lr, reg_coef):
+        self.lr = lr
+        self.reg_coef = reg_coef
+        self.answer_prev = None
+
+    def optimize(self, answer, gradient):
+        if self.answer_prev is None:
+            self.answer_prev = [0 for _ in range(len(answer))]
+        new_answer = copy(answer)
+        for j in range(len(answer)):
+            new_answer[j] -= self.lr * gradient[j] + self.reg_coef * answer[j]
+        self.answer_prev = answer
+        return new_answer
 
 class SGDRegressor:
-    def __init__(self, epochs_count=100000, lr=1e-3, reg_coef=1, batch_size=1):
+    def __init__(self, epochs_count=100000, lr=1e-3, reg_coef=1, batch_size=1, optimizer=BaseOptimizer):
         self.epochs_count = epochs_count
         self.lr = lr
         self.reg_coef = reg_coef
@@ -11,8 +27,12 @@ class SGDRegressor:
         self.best_error = 1e25
         self.best_params = []
 
+        self.optimizer = optimizer(self.lr, self.reg_coef)
+
     def fit(self, X_train, y_train, process_steps=True):
         self.X_train = [line + [1] for line in X_train]
+        self.params_count = len(self.X_train[0])
+
         self.y_train = y_train
         self.batch_size = min(self.batch_size, len(y_train))
 
@@ -23,7 +43,7 @@ class SGDRegressor:
         self.X_train = [[x / self.delta for x in line] for line in self.X_train]
         self.y_train = [y / self.delta for y in y_train]
 
-        self.params_count = len(self.X_train[0])
+        self.prev_answer = [0 for _ in range(self.params_count)]
         self.answer = [random.uniform(-1 / 2 / len(self.X_train[0]), 1 / 2 / len(self.X_train[0])) for _ in
                        range(self.params_count)]
         if process_steps:
@@ -44,8 +64,7 @@ class SGDRegressor:
             self.best_params = self.answer
 
         gradient = [2 * se * error for se in stochastic_element]
-        for j in range(self.params_count):
-            self.answer[j] -= self.lr * gradient[j] + self.reg_coef * self.answer[j]
+        self.answer = self.optimizer.optimize(self.answer, gradient)
 
     def predict(self, X_test):
         return [sum(w * x_st for w, x_st in zip(self.answer, element)) for element in X_test]
