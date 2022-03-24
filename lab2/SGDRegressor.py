@@ -21,6 +21,7 @@ class SGDRegressor:
         self.optimizer = optimizer
         self.iterations = 0
         self.calculation_time = 0
+        self.memory = 0
 
     def fit(self, X_train, y_train, process_steps=True, plot_errors=True, epsilon=1e-2):
         self.X_train = np.append(X_train, np.ones([X_train.shape[0], 1]), axis=1)
@@ -43,9 +44,9 @@ class SGDRegressor:
                 self.plot_errors_log()
             return self.answer
 
-    def plot_errors_log(self):
+    def plot_errors_log(self, label=''):
         step = len(self.error_log) // 150
-        sns.lineplot(x=[i for i in range(0, len(self.error_log), max(step, 1))], y=self.error_log[::step])
+        sns.lineplot(x=[i for i in range(0, len(self.error_log), max(step, 1))], y=self.error_log[::step], label=label)
         plt.title("Iterations vs Error")
 
     def process_step(self):
