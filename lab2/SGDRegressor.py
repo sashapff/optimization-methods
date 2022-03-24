@@ -3,16 +3,8 @@ import time
 from copy import copy
 import seaborn as sns
 import numpy as np
-
-
-class BaseOptimizer:
-    def __init__(self, lr, reg_coef):
-        self.lr = lr
-        self.reg_coef = reg_coef
-
-    def optimize(self, answer, gradient):
-        answer -= self.lr * gradient + self.reg_coef * answer
-        return answer
+import pandas as pd
+from optimizer import BaseOptimizer
 
 
 class SGDRegressor:
@@ -28,7 +20,7 @@ class SGDRegressor:
 
     def fit(self, X_train, y_train, process_steps=True, plot_errors=True):
         self.X_train = np.append(X_train, np.ones([X_train.shape[0], 1]), axis=1)
-        self.params_count = self.X_train.shape[0]
+        self.params_count = self.X_train.shape[1]
 
         self.y_train = y_train
         self.batch_size = min(self.batch_size, y_train.shape[0])
@@ -62,16 +54,12 @@ class SGDRegressor:
 
     def predict(self, X_test):
         return np.squeeze(X_test @ self.answer.T, axis=1)
-        # return [sum(w * x_st for w, x_st in zip(self.answer, element)) for element in X_test]
 
 
 if __name__ == "__main__":
-    n, m = map(int, input().split())
-    X_train, y_train = [], []
-    for i in range(n):
-        obj = list(map(int, input().split()))
-        X_train.append(obj[:-1])
-        y_train.append(obj[-1])
-    sgd = SGDRegressor(40000, 0.05, 0, 2)
-    for i in sgd.fit(np.array(X_train), np.array(y_train)):
-        print(i)
+    X = pd.read_csv("X.csv").to_numpy()[: 1:]
+    y = pd.read_csv("y.csv").to_numpy()[:, 1]
+    print(X.shape, y.shape)
+    optimizer = BaseOptimizer(lr=1e-3, reg_coef=1)
+    sgd = SGDRegressor(optimizer=optimizer)
+    sgd.fit(X, y)

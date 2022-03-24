@@ -1,6 +1,16 @@
 import numpy as np
 
 
+class BaseOptimizer:
+    def __init__(self, lr, reg_coef):
+        self.lr = lr
+        self.reg_coef = reg_coef
+
+    def optimize(self, answer, gradient):
+        answer -= self.lr * gradient + self.reg_coef * answer
+        return answer
+
+
 class Momentum:
     def __init__(self, alpha, beta):
         self.alpha = alpha
@@ -61,7 +71,7 @@ class Adam:
         self.v = 0
 
     def optimize(self, answer, gradient):
-        self.v = beta * self.v + (1 - self.beta) * gradient
+        self.v = self.beta * self.v + (1 - self.beta) * gradient
         self.G = self.gamma * self.G + (1 - self.gamma) * gradient ** 2
         answer -= self.alpha * gradient / np.sqrt(self.G + self.eps)
         return answer
