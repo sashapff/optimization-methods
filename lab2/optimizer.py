@@ -2,7 +2,7 @@ import numpy as np
 
 
 class BaseOptimizer:
-    def __init__(self, lr, reg_coef):
+    def __init__(self, lr=1e-3, reg_coef=1e-1):
         self.lr = lr
         self.reg_coef = reg_coef
 
@@ -12,7 +12,7 @@ class BaseOptimizer:
 
 
 class Momentum:
-    def __init__(self, alpha, beta):
+    def __init__(self, alpha=3e-4, beta=0.9):
         self.alpha = alpha
         self.beta = beta
         self.diff = 0
@@ -24,7 +24,7 @@ class Momentum:
 
 
 class Nesterov:
-    def __init__(self, alpha, beta, gradient_fun):
+    def __init__(self, gradient_fun, alpha=3e-4, beta=0.9):
         self.alpha = alpha
         self.beta = beta
         self.gradient_fun = gradient_fun
@@ -43,7 +43,7 @@ class AdaGrad:
         self.G = 0
 
     def optimize(self, answer, gradient):
-        self.G += gradient ** 2
+        self.G += np.multiply(gradient, gradient)
         answer -= self.alpha * gradient / np.sqrt(self.G + self.eps)
         return answer
 
