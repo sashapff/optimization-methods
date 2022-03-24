@@ -15,10 +15,9 @@ def plot_log(data, title):
     plt.show()
 
 
-def min_max_scaling(X, y):
-    X_std = (X - X.min(axis=0)) / (X.max(axis=0) - X.min(axis=0))
-    X_scaled = X_std * (max - min) + min
+def min_max_scaling(X):
+    return (X - X.min(axis=0)) / (X.max(axis=0) - X.min(axis=0))
+    
 
-
-def standard_scaling(X, y):
-    pass
+def standard_scaling(X):
+    return (X - X.mean(axis=0)) / X.std(axis=0, ddof=1)
