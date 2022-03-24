@@ -24,15 +24,15 @@ class Momentum:
 
 
 class Nesterov:
-    def __init__(self, gradient_fun, alpha=3e-4, beta=0.9):
+    def __init__(self, alpha=3e-4, beta=0.9):
         self.alpha = alpha
         self.beta = beta
-        self.gradient_fun = gradient_fun
-        self.diff = None
+        self.diff = 0
 
     def optimize(self, answer, gradient):
-        self.diff = self.alpha * self.diff - self.beta * self.gradient_fun(answer + self.alpha * self.diff)
-        answer += self.diff
+        diff_prev = self.diff
+        self.diff = answer - self.beta * gradient
+        answer = self.diff + self.alpha * (self.diff - diff_prev)
         return answer
 
 
