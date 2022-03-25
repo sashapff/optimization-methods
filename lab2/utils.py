@@ -1,6 +1,9 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def read_data():
@@ -21,3 +24,12 @@ def min_max_scaling(X):
 
 def standard_scaling(X):
     return (X - X.mean(axis=0)) / X.std(axis=0, ddof=1)
+
+
+def plot_trace_3d(title, weights_log, ax3d):
+    step = max(1, len(weights_log) // 150)
+    X = [weights_log[w][0][0] for w in range(0, len(weights_log), step)]
+    Y = [weights_log[w][0][1] for w in range(0, len(weights_log), step)]
+    Z = [weights_log[w][0][2] for w in range(0, len(weights_log), step)]
+
+    ax3d.plot(X, Y, Z, '-o', label=title)

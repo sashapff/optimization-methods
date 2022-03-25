@@ -21,16 +21,20 @@ class SGDRegressor:
         self.optimizer = optimizer
         self.iterations = 0
         self.calculation_time = 0
+        self.weights_log = []
         self.memory = 0
 
-    def fit(self, X_train, y_train, process_steps=True, plot_errors=True, epsilon=1e-2):
+    def fit(self, X_train, y_train, process_steps=True, plot_errors=True, epsilon=1e-2, initial_weights=None):
         self.X_train = np.append(X_train, np.ones([X_train.shape[0], 1]), axis=1)
         self.params_count = self.X_train.shape[1]
 
         self.y_train = y_train
         self.batch_size = min(self.batch_size, y_train.shape[0])
 
-        self.answer = np.sqrt(self.params_count) * np.random.randn(1, self.params_count)
+        if initial_weights is not None:
+            self.answer = initial_weights
+        else:
+            self.answer = np.sqrt(self.params_count) * np.random.randn(1, self.params_count)
         if process_steps:
             self.calculation_time = time.time()
             error = 1e10
@@ -42,6 +46,7 @@ class SGDRegressor:
             self.calculation_time = time.time() - self.calculation_time
             if plot_errors:
                 self.plot_errors_log()
+            self.weights_log.append(self.answer.copy())
             return self.answer
 
     def plot_errors_log(self, label=''):
@@ -60,6 +65,7 @@ class SGDRegressor:
         # print('error', error)
         # print('result', stochastic_elements.T.dot(error))
         gradient = 2 * stochastic_elements.T.dot(error) / self.batch_size
+        self.weights_log.append(self.answer.copy())
         self.answer = self.optimizer.optimize(self.answer, gradient)
 
         mean_error = np.mean(np.abs(error))
@@ -81,7 +87,7 @@ if __name__ == "__main__":
     y = pd.read_csv("y.csv").to_numpy()[:, 1]
     print(X.shape, y.shape)
     optimizer = BaseOptimizer(0.01, 1)
-    sgd = SGDRegressor(optimizer=optimizer, batch_size=10)
+    sgd = SGDRegressor(optimizer=optimizer, batch_size=100)
     sgd.fit(X, y)
     print(sgd.iterations)
     print(sgd.best_error)
